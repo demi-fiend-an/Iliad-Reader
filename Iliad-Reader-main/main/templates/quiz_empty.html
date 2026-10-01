@@ -1,0 +1,4 @@
+<!DOCTYPE html>
+<html lang="{{ language }}"><head><meta charset="UTF-8"><title>{{ ui.quiz }}</title>
+<style>body{background:#08090b;color:#f4f0e7;font-family:Georgia,serif}.card{max-width:700px;margin:80px auto;padding:50px;background:#111318;border-radius:14px;text-align:center}a{color:#e8bd67}</style>
+</head><body><section class="card"><h1>{{ song.title }}</h1><p>{{ ui.no_questions }}</p><a href="{% url 'quiz_home_language' language %}">← {{ ui.back }}</a></section></body></html>
