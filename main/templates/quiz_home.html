@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="{{ language }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ ui.quiz }}</title>
+  <style>
+    :root {
+      --bg: #08090b;
+      --paper: #111318;
+      --ink: #f4f0e7;
+      --muted: #c4bba8;
+      --gold: #e8bd67;
+      --gold-hover: #f4d58f;
+      --panel: #0c0e12;
+      --border: #80602e;
+      --green: #6fcf97;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; padding: 30px 16px;
+      background: var(--bg); color: var(--ink);
+      font-family: "Trebuchet MS", "Palatino Linotype", Palatino, Georgia, serif;
+    }
+    .wrap { max-width: 950px; margin: 0 auto; }
+    .card {
+      background: var(--paper); border: 1px solid #292a2e; border-radius: 14px;
+      padding: clamp(24px, 5vw, 55px); box-shadow: 0 18px 50px rgba(0,0,0,.55);
+    }
+    h1 { margin-top: 0; text-align: center; color: var(--gold); font-size: clamp(2.2rem, 5vw, 3.5rem); }
+    .subtitle { text-align: center; color: var(--muted); font-size: 1.15rem; margin-bottom: 35px; }
+    .songs { display: grid; gap: 14px; }
+    .song {
+      display: flex; justify-content: space-between; align-items: center; gap: 20px;
+      padding: 20px 22px; border: 1px solid #393b40; border-radius: 10px;
+      background: var(--panel); text-decoration: none; color: var(--ink);
+      transition: .15s ease;
+    }
+    .song:hover { border-color: var(--gold); transform: translateY(-1px); }
+    .song strong { color: var(--gold); }
+    .home { display: inline-block; margin-top: 25px; color: var(--muted); }
+  .language-nav { text-align:center; margin: 0 0 24px; display:flex; justify-content:center; gap:8px; flex-wrap:wrap; }
+    .language-nav a { display:inline-block; padding:8px 13px; border:1px solid #393b40; border-radius:7px; color:var(--muted); text-decoration:none; font:600 14px system-ui,sans-serif; }
+    .language-nav a.active { border-color:var(--gold); color:var(--gold); }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="card">
+      <h1>{{ ui.quiz }}</h1>
+      <nav class="language-nav" aria-label="{{ ui.language }}">
+        <a href="{% url 'quiz_home_language' 'en' %}" class="{% if language == 'en' %}active{% endif %}">English</a>
+        <a href="{% url 'quiz_home_language' 'ru' %}" class="{% if language == 'ru' %}active{% endif %}">Русский</a>
+        <a href="{% url 'quiz_home_language' 'kk' %}" class="{% if language == 'kk' %}active{% endif %}">Қазақша</a>
+      </nav>
+      <p class="subtitle">
+        {{ ui.quiz_subtitle }}
+      </p>
+
+      <div class="songs">
+        {% for song in songs %}
+          <a class="song" href="{% url 'quiz_song' language song.number %}">
+            <span><strong>{{ ui.book }} {{ song.number }}</strong> — {{ song.title }}</span>
+            <span>{{ ui.start }} →</span>
+          </a>
+        {% empty %}
+          <p>{{ ui.no_quiz_questions }}</p>
+        {% endfor %}
+      </div>
+
+      <a class="home" href="{% url 'reader_language' language %}">← {{ ui.back_to_iliad }}</a>
+    </section>
+  </main>
+</body>
+</html>
