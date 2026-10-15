@@ -28,7 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://onrender.com'
+    'https://iliad-reader.onrender.com'
 ]
 
 # Application definition
