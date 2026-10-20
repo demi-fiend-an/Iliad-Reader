@@ -1,0 +1,256 @@
+            <!DOCTYPE html>
+<html lang="{{ language }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ song.title|default:ui.iliad }}</title>
+  <style>
+:root {
+  --bg: #08090b;
+  --paper: #111318;
+  --ink: #f4f0e7;
+  --muted: #c4bba8;
+  --gold: #e8bd67;
+  --gold-dark: #8f6729;
+  --gold-hover: #f4d58f;
+  --panel: #0c0e12;
+  --panel-border: #80602e;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  padding: clamp(16px, 4vw, 48px);
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Trebuchet MS", "Palatino Linotype", Palatino, Georgia, serif;
+  font-size: 21px;
+  line-height: 1.72;
+  letter-spacing: 0.012em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.reader-layout {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
+  gap: clamp(20px, 3vw, 42px); max-width: 1400px; margin: 0 auto; align-items: start;
+}
+.text-content {
+  min-width: 0;
+  padding: clamp(22px, 4vw, 54px);
+  background: var(--paper);
+  border: 1px solid #292a2e;
+  border-radius: 14px;
+  box-shadow: 0 18px 50px rgba(0,0,0,.55);
+  font-size: clamp(19px, 1.35vw, 22px);
+  overflow-wrap: anywhere;
+}
+.book-title {
+  margin: 0 0 .4em; color: #f0ce85; text-align: center;
+  font-size: clamp(2.2rem, 4vw, 3.2rem); line-height: 1.2; font-weight: normal;
+  letter-spacing: .055em; text-transform: uppercase;
+}
+.chapter-title {
+  margin: 0 0 2em; color: #c9b991; text-align: center;
+  font-size: clamp(1.35rem, 2.3vw, 1.75rem); font-weight: normal; font-style: italic;
+}
+.poem p { margin: 0 0 0.72em; text-indent: 1.1em; }
+.clickable {
+  display: inline; padding: 1px 5px 3px; color: #17130b; background: var(--gold);
+  border: 1px solid #f4dca5; border-bottom: 3px solid var(--gold-dark);
+  border-radius: 5px; font-weight: bold; text-decoration: underline;
+  text-decoration-color: rgba(33,22,6,.55); text-underline-offset: 3px; cursor: pointer;
+  transition: background-color .15s ease, box-shadow .15s ease;
+}
+.clickable:hover { background: var(--gold-hover); box-shadow: 0 0 0 3px rgba(255,209,102,.22); }
+.clickable:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.clickable.active { background: #fff0b3; box-shadow: 0 0 0 3px var(--panel-border), 0 0 18px rgba(255,209,102,.35); }
+
+
+.clickable.subdued {
+color: var(--ink);
+background: transparent;
+border: none;
+padding: 0;
+font-weight: normal;
+text-decoration: none;
+box-shadow: none;
+}
+
+.clickable.subdued:hover {
+color: var(--ink);
+background: transparent;
+box-shadow: none;
+}
+
+.clickable.subdued.active {
+color: var(--ink);
+background: transparent;
+border: none;
+box-shadow: none;
+}
+
+
+
+.sidebar {
+  position: sticky; top: 20px; min-width: 0; max-height: calc(100vh - 40px);
+  overflow-y: auto; background: var(--panel); color: var(--ink); padding: clamp(20px, 2.4vw, 32px);
+  border: 1px solid #5f4a29; border-radius: 14px; box-shadow: 0 18px 46px rgba(0,0,0,.6);
+}
+.annotation-block { display: none; }
+.annotation-block.active { display: block; }
+.annotation-block h2 { margin: 0 0 14px; color: var(--gold); font-size: 2rem; font-weight: normal; border-bottom: 1px solid #66502f; padding-bottom: 12px; }
+.annotation-block p { margin: 0; color: #e4dfd4; font-family: Georgia, serif; font-size: 1.28rem; line-height: 1.72; letter-spacing: 0.01em; }
+.placeholder { color: var(--muted); font-style: italic; }
+.back-btn { display: none; margin-bottom: 18px; background: var(--gold); color: #211606; border: 1px solid #fff0b3; padding: 8px 14px; border-radius: 5px; cursor: pointer; font: bold 14px system-ui, sans-serif; }
+.back-btn:hover { background: var(--gold-hover); }
+@media (max-width: 900px) {
+  .reader-layout { grid-template-columns: minmax(0, 1fr); }
+  .sidebar { position: static; max-height: none; }
+  .text-content { font-size: clamp(20px, 3.2vw, 25px); padding: clamp(16px, 4vw, 28px); }
+}
+@media (max-width: 520px) {
+  body { padding: 10px; font-size: 19px; }
+  .text-content { font-size: 20px; line-height: 1.68; }
+  .poem p { margin-bottom: 0.78em; text-indent: 0.8em; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition: none !important; } }
+
+.quiz-nav { text-align: center; margin: 0 0 2em; }
+.song-nav {
+  display: flex; justify-content: center; align-items: center; gap: 10px;
+  flex-wrap: wrap; margin: 0 0 1.8em;
+}
+.song-button {
+  display: inline-block; padding: 11px 18px; border: 1px solid var(--gold-dark);
+  border-radius: 8px; background: #0d0f13; color: var(--gold);
+  text-decoration: none; font: 700 15px system-ui, sans-serif;
+  box-shadow: 0 5px 18px rgba(0,0,0,.28); transition: .15s ease;
+}
+.song-button:hover { background: #18130c; border-color: var(--gold); color: var(--gold-hover); transform: translateY(-1px); }
+.song-button-primary { border-color: var(--gold); background: rgba(232,189,103,.08); }
+.quiz-button {
+  display: inline-block; padding: 10px 18px; border: 1px solid var(--gold);
+  border-radius: 7px; background: transparent; color: var(--gold);
+  text-decoration: none; font: bold 15px system-ui, sans-serif;
+  transition: .15s ease;
+}
+.quiz-button:hover { background: var(--gold); color: #17130b; }
+</style>
+  <style>
+    .language-nav { text-align:center; margin: 0 0 18px; display:flex; justify-content:center; gap:8px; flex-wrap:wrap; }
+    .language-nav a { display:inline-block; padding:8px 13px; border:1px solid #393b40; border-radius:7px; color:var(--muted); text-decoration:none; font:600 14px system-ui,sans-serif; }
+    .language-nav a.active { border-color:var(--gold); color:var(--gold); background:rgba(232,189,103,.07); }
+    .reader-text-html { min-width:0; }
+    .reader-text-html .poem { margin:0; }
+    .empty-text { color:var(--muted); text-align:center; padding:40px 10px; font-style:italic; }
+  </style>
+</head>
+<body>
+  <main class="reader-layout">
+    <article class="text-content">
+      <h1 class="book-title">{{ ui.iliad }}</h1>
+      <h2 class="chapter-title">
+        {% if song %}{{ song.title }}{% else %}Book I{% endif %}
+      </h2>
+
+      <nav class="language-nav" aria-label="{{ ui.language }}">
+        {% if language_song_links.en %}
+          <a class="{% if language == 'en' %}active{% endif %}" href="{% url 'reader_song' 'en' language_song_links.en.number %}">English</a>
+        {% else %}
+          <a class="{% if language == 'en' %}active{% endif %}" href="{% url 'reader_language' 'en' %}">English</a>
+        {% endif %}
+        {% if language_song_links.ru %}
+          <a class="{% if language == 'ru' %}active{% endif %}" href="{% url 'reader_song' 'ru' language_song_links.ru.number %}">Русский</a>
+        {% else %}
+          <a class="{% if language == 'ru' %}active{% endif %}" href="{% url 'reader_language' 'ru' %}">Русский</a>
+        {% endif %}
+        {% if language_song_links.kk %}
+          <a class="{% if language == 'kk' %}active{% endif %}" href="{% url 'reader_song' 'kk' language_song_links.kk.number %}">Қазақша</a>
+        {% else %}
+          <a class="{% if language == 'kk' %}active{% endif %}" href="{% url 'reader_language' 'kk' %}">Қазақша</a>
+        {% endif %}
+      </nav>
+
+      <nav class="song-nav" aria-label="{{ ui.iliad }}">
+        {% if previous_song %}
+          <a class="song-button" href="{% url 'reader_song' language previous_song.number %}">← {{ ui.song }} {{ previous_song.number }}</a>
+        {% endif %}
+        {% if next_song %}
+          <a class="song-button song-button-primary" href="{% url 'reader_song' language next_song.number %}">{{ ui.read_song }} {{ next_song.number }} →</a>
+        {% endif %}
+      </nav>
+
+      <div class="quiz-nav">
+        <a href="{% url 'quiz_home_language' language %}" class="quiz-button">{{ ui.take_quiz }} →</a>
+      </div>
+
+      <section class="reader-text-html" aria-label="{{ ui.iliad }}">
+        {% if song and song.text_html %}
+          {{ song.text_html|safe }}
+        {% elif language == 'en' %}
+          {% include 'includes/english_poem.html' %}
+        {% else %}
+          <div class="empty-text">
+            {{ ui.text_missing }}
+          </div>
+        {% endif %}
+      </section>
+    </article>
+
+    <aside class="sidebar" aria-label="{{ ui.annotations }}">
+      <button id="back-button" class="back-btn" type="button">← {{ ui.back }}</button>
+      <div id="placeholder" class="placeholder">{{ ui.select_annotation }}</div>
+      {% for note in annotations %}
+        <section class="annotation-block" id="note-{{ note.html_id }}" data-annotation-id="{{ note.html_id }}">
+          <h2>{{ note.title }}</h2>
+          <div>{{ note.commentary|safe }}</div>
+        </section>
+      {% endfor %}
+    </aside>
+  </main>
+
+  <script>
+    const annotationHistory = [];
+    const placeholder = document.getElementById('placeholder');
+    const backButton = document.getElementById('back-button');
+
+    function showAnnotation(targetId, saveToHistory = true) {
+      const block = document.getElementById('note-' + targetId);
+      if (!block) {
+        console.warn('Annotation not found for html_id:', targetId);
+        return;
+      }
+
+      const current = document.querySelector('.annotation-block.active');
+      if (saveToHistory && current && current.dataset.annotationId !== targetId) {
+        annotationHistory.push(current.dataset.annotationId);
+      }
+
+      document.querySelectorAll('.annotation-block').forEach(item => item.classList.remove('active'));
+      document.querySelectorAll('.clickable').forEach(word => word.classList.toggle('active', word.dataset.target === targetId));
+      block.classList.add('active');
+      placeholder.style.display = 'none';
+      backButton.style.display = annotationHistory.length ? 'inline-block' : 'none';
+    }
+
+    document.addEventListener('click', event => {
+      const word = event.target.closest('.clickable');
+      if (word) showAnnotation(word.dataset.target);
+    });
+
+    document.addEventListener('keydown', event => {
+      const word = event.target.closest && event.target.closest('.clickable');
+      if (word && (event.key === 'Enter' || event.key === ' ')) {
+        event.preventDefault();
+        showAnnotation(word.dataset.target);
+      }
+    });
+
+    backButton.addEventListener('click', () => {
+      const previousId = annotationHistory.pop();
+      if (previousId) showAnnotation(previousId, false);
+      backButton.style.display = annotationHistory.length ? 'inline-block' : 'none';
+    });
+  </script>
+</body>
+</html>
